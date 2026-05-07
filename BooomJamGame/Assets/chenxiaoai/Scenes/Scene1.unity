@@ -1348,6 +1348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1054402190}
   - component: {fileID: 1054402189}
+  - component: {fileID: 1054402191}
   m_Layer: 0
   m_Name: CardEnter_Timeline
   m_TagString: Untagged
@@ -1391,6 +1392,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 850664276}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1054402191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054402188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1925d8dda42a7e48a235e6702ed3b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  director: {fileID: 1054402189}
+  targetSceneName: Scene2
 --- !u!1001 &1435217158
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1518,7 +1533,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 10
+  m_Priority: 20
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}

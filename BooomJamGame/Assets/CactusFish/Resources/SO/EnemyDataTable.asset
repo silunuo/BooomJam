@@ -12,4 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b97370adae05004e85a5f48d1b2feca, type: 3}
   m_Name: EnemyDataTable
   m_EditorClassIdentifier: 
-  enemies: []
+  enemies:
+  - id: 101
+    type: 0
+    name: NewEnemy
+    resourceName: Assets/CactusFish/Resources/Prefabs/NewEnemy.prefab
+    health: 100
+    attack: 10
+    defense: 5
+    gold: 10
+    skills: []
+  - id: 102
+    type: 0
+    name: Enemy1
+    resourceName: Assets/CactusFish/Resources/Prefabs/Enemy1.prefab
+    health: 100
+    attack: 10
+    defense: 5
+    gold: 10
+    skills: []

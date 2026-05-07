@@ -314,9 +314,9 @@
     "m_ShaderOutputName": "BaseColor",
     "m_StageCapability": 2,
     "m_Value": {
-        "x": 0.6679245233535767,
-        "y": 0.663528323173523,
-        "z": 0.5734068751335144
+        "x": 0.7871751189231873,
+        "y": 0.9094339609146118,
+        "z": 0.7464222311973572
     },
     "m_DefaultValue": {
         "x": 0.0,
@@ -466,7 +466,7 @@
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 0,
     "m_Hidden": false,
-    "m_Value": 0.0,
+    "m_Value": 1.0,
     "m_FloatType": 0,
     "m_RangeValues": {
         "x": 0.0,
@@ -772,7 +772,7 @@
     "m_DefaultRefNameVersion": 1,
     "m_RefNameGeneratedByDisplayName": "Emission Color",
     "m_DefaultReferenceName": "_Emission_Color",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "_EmissionColor",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
@@ -785,7 +785,7 @@
         "r": 0.947169840335846,
         "g": 0.8989177942276001,
         "b": 0.8989177942276001,
-        "a": 0.0
+        "a": 1.0
     },
     "isMainColor": false,
     "m_ColorMode": 1
