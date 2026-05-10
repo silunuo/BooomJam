@@ -60,67 +60,79 @@ public class CombatModule : ModuleBase
     }
 
     /// <summary>
-    /// 触发战斗序列
+    /// 触发战斗序列，直到一方死亡
     /// </summary>
     public IEnumerator PerformCombatSequence(EntityCore targetCore, Vector3 returnPos)
     {
         if (isCombatInProgress) yield break;
         isCombatInProgress = true;
 
-        // 1. 获取目标战斗模块
+        // 获取目标战斗模块
         CombatModule targetCombat = targetCore.GetComponent<CombatModule>();
 
-        // 2. 攻击者冲向目标并攻击
-        Vector3 startPos = transform.position;
-        Vector3 attackPos = targetCore.transform.position;
-        
-        // 动画：冲过去
-        yield return StartCoroutine(MoveTo(attackPos, attackDuration));
-
-        // --- 伤害结算：目标扣血 ---
-        int damage = Mathf.Max(0, Core.attack - targetCore.defense);
-        targetCore.currentHealth -= damage;
-        Debug.Log($"[{Core.entityName}] 攻击了 [{targetCore.entityName}]，造成 {damage} 点伤害");
-
-        // --- 视觉反馈：目标闪红 ---
-        if (targetCombat != null)
+        // 战斗主循环：直到一方生命值为 0
+        while (Core.currentHealth > 0 && targetCore.currentHealth > 0)
         {
-            StartCoroutine(targetCombat.FlashHitEffect());
-        }
-
-        // --- 死亡检测：如果目标死了，它就不再反击并消失 ---
-        bool targetDead = targetCore.currentHealth <= 0;
-
-        // 动画：弹回原位
-        yield return StartCoroutine(MoveTo(returnPos, attackDuration));
-
-        if (targetDead)
-        {
-            Debug.Log($"[{targetCore.entityName}] 已死亡，正在移除卡牌。");
-            Destroy(targetCore.gameObject);
-            isCombatInProgress = false;
-            yield break; // 目标已死，结束战斗序列
-        }
-
-        // 3. 目标反击 (如果还没死)
-        if (targetCore.currentHealth > 0 && targetCombat != null)
-        {
-            yield return new WaitForSeconds(retaliationDelay); // 反击前的延迟
+            // --- 1. 攻击者发起攻击 ---
+            Vector3 startPos = transform.position;
+            Vector3 attackPos = targetCore.transform.position;
             
-            // 反击动画：目标冲向当前实体
-            Vector3 targetStartPos = targetCore.transform.position;
-            yield return StartCoroutine(targetCombat.MoveTo(transform.position, attackDuration));
+            // 动画：冲过去
+            yield return StartCoroutine(MoveTo(attackPos, attackDuration));
 
-            // --- 伤害结算：自身扣血 ---
-            int counterDamage = Mathf.Max(0, targetCore.attack - Core.defense);
-            Core.currentHealth -= counterDamage;
-            Debug.Log($"[{targetCore.entityName}] 反击了 [{Core.entityName}]，造成 {counterDamage} 点伤害");
+            // 伤害结算：目标扣血
+            int damage = Mathf.Max(0, Core.attack - targetCore.defense);
+            targetCore.currentHealth -= damage;
+            Debug.Log($"[{Core.entityName}] 攻击了 [{targetCore.entityName}]，造成 {damage} 点伤害，目标剩余血量: {targetCore.currentHealth}");
 
-            // --- 视觉反馈：自身闪红 ---
-            StartCoroutine(FlashHitEffect());
+            // 视觉反馈：目标闪红
+            if (targetCombat != null)
+            {
+                StartCoroutine(targetCombat.FlashHitEffect());
+            }
 
-            // 目标弹回原位
-            yield return StartCoroutine(targetCombat.MoveTo(targetStartPos, attackDuration));
+            // 动画：弹回原位
+            yield return StartCoroutine(MoveTo(returnPos, attackDuration));
+
+            // 检查目标是否死亡
+            if (targetCore.currentHealth <= 0)
+            {
+                Debug.Log($"[{targetCore.entityName}] 已死亡，正在移除卡牌。");
+                Destroy(targetCore.gameObject);
+                break; // 结束战斗循环
+            }
+
+            // --- 2. 目标反击 ---
+            yield return new WaitForSeconds(retaliationDelay);
+            
+            if (targetCombat != null)
+            {
+                Vector3 targetStartPos = targetCore.transform.position;
+                // 反击动画：目标冲向当前实体
+                yield return StartCoroutine(targetCombat.MoveTo(transform.position, attackDuration));
+
+                // 伤害结算：自身扣血
+                int counterDamage = Mathf.Max(0, targetCore.attack - Core.defense);
+                Core.currentHealth -= counterDamage;
+                Debug.Log($"[{targetCore.entityName}] 反击了 [{Core.entityName}]，造成 {counterDamage} 点伤害，自身剩余血量: {Core.currentHealth}");
+
+                // 视觉反馈：自身闪红
+                StartCoroutine(FlashHitEffect());
+
+                // 目标弹回原位
+                yield return StartCoroutine(targetCombat.MoveTo(targetStartPos, attackDuration));
+            }
+
+            // 检查自身是否死亡
+            if (Core.currentHealth <= 0)
+            {
+                Debug.Log($"[{Core.entityName}] 已死亡，正在移除玩家卡牌。");
+                Destroy(gameObject);
+                break; // 结束战斗循环
+            }
+
+            // 每轮战斗结束后的短暂间歇
+            yield return new WaitForSeconds(0.2f);
         }
 
         isCombatInProgress = false;
