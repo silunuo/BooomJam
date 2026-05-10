@@ -15,11 +15,56 @@ public class GameManager : MonoBehaviour
     private PlayableDirector currentPlayableDirector;
     private double currentClipEndTime;
 
+    [Header("Persistence Data")]
+    public PlayerPersistentData savedPlayerData;
+    public bool hasSavedData = false;
+
+    [System.Serializable]
+    public struct PlayerPersistentData
+    {
+        public int maxHealth;
+        public int currentHealth;
+        public int attack;
+        public int defense;
+        public int gold;
+        public List<string> skills;
+    }
+
+    public void SavePlayerData(EntityCore player)
+    {
+        if (player == null) return;
+        
+        savedPlayerData.maxHealth = player.maxHealth;
+        savedPlayerData.currentHealth = player.currentHealth;
+        savedPlayerData.attack = player.attack;
+        savedPlayerData.defense = player.defense;
+        savedPlayerData.gold = player.gold;
+        savedPlayerData.skills = new List<string>(player.skills);
+        
+        hasSavedData = true;
+        Debug.Log("[GameManager] Player data saved.");
+    }
+
+    public void LoadPlayerData(EntityCore player)
+    {
+        if (player == null || !hasSavedData) return;
+
+        player.maxHealth = savedPlayerData.maxHealth;
+        player.currentHealth = savedPlayerData.currentHealth;
+        player.attack = savedPlayerData.attack;
+        player.defense = savedPlayerData.defense;
+        player.gold = savedPlayerData.gold;
+        player.skills = new List<string>(savedPlayerData.skills);
+
+        Debug.Log("[GameManager] Player data loaded.");
+    }
+
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -28,7 +73,6 @@ public class GameManager : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-        DontDestroyOnLoad(gameObject);
 
         gameMode = GameMode.GamePlay;
     }
@@ -48,7 +92,7 @@ public class GameManager : MonoBehaviour
                     ResumeTimeline();
                 }
             }
-            else if (gameMode == GameMode.GamePlay && UIManager.instance.IsTyping)
+            else if (gameMode == GameMode.GamePlay && UIManager.instance != null && UIManager.instance.IsTyping)
             {
                 // 如果正在播放片段时按下空格
                 UIManager.instance.CompleteTypewriter();
