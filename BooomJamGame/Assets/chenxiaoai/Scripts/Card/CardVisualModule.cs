@@ -53,7 +53,23 @@ public class CardVisualModule : ModuleBase
     public bool IsExternalAnimating
     {
         get => isExternalAnimating;
-        set => isExternalAnimating = value;
+        set 
+        {
+            isExternalAnimating = value;
+            // 当外部动画结束时，刷新基础位置，防止卡牌跳回移动前的位置
+            if (!isExternalAnimating)
+            {
+                basePosition = transform.position;
+                if (!isHovering)
+                {
+                    targetPosition = basePosition;
+                }
+                else
+                {
+                    targetPosition = basePosition + Vector3.up * hoverHeight;
+                }
+            }
+        }
     }
 
     public override void OnModuleLoad(EntityCore entity)

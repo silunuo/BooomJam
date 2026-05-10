@@ -28,19 +28,6 @@ public class ObjectSwitcherTrigger : MonoBehaviour
     [Header("State")]
     private bool hasTriggered = false;
 
-    private void Start()
-    {
-        // 预处理：将移入的物体先放到“镜头外”的起始位置
-        foreach (var obj in objectsToEnter)
-        {
-            if (obj != null)
-            {
-                // 物体当前位置是“目标位置”，我们需要把它挪到“起始位置”
-                obj.position += enterOffset;
-            }
-        }
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         EntityCore core = other.GetComponent<EntityCore>();
@@ -53,23 +40,60 @@ public class ObjectSwitcherTrigger : MonoBehaviour
     private void SwitchObjects()
     {
         hasTriggered = true;
-        Debug.Log("检测到玩家卡牌，开始统一位移切换物体...");
+        Debug.Log("触发物体位移切换...");
 
-        // 1. 批量移出：当前位置 -> 当前位置 + exitOffset
+        // 直接根据当前位置和 Offset 进行位移
+        // 旧物体：从当前摆放位置 -> 加上 exitOffset
         foreach (var obj in objectsToExit)
         {
             if (obj != null)
             {
-                obj.DOMove(obj.position + exitOffset, duration).SetEase(easeType);
+                // 关键修复：锁定当前物体及其所有子物体中的视觉模块，防止子物体卡牌弹回
+                CardVisualModule[] childVisuals = obj.GetComponentsInChildren<CardVisualModule>();
+                foreach (var v in childVisuals)
+                {
+                    v.IsExternalAnimating = true;
+                }
+
+                // 执行父物体位移
+                obj.DOMove(obj.position + exitOffset, duration).SetEase(easeType).OnComplete(() => {
+                    // 动画完成后恢复视觉模块的控制
+                    if (obj != null)
+                    {
+                        CardVisualModule[] childVisuals = obj.GetComponentsInChildren<CardVisualModule>();
+                        foreach (var v in childVisuals)
+                        {
+                            v.IsExternalAnimating = false;
+                        }
+                    }
+                });
             }
         }
 
-        // 2. 批量移入：当前位置 (已在镜头外) -> 当前位置 - enterOffset (回到原位)
+        // 新物体：从当前摆放位置 -> 加上 enterOffset
         foreach (var obj in objectsToEnter)
         {
             if (obj != null)
             {
-                obj.DOMove(obj.position - enterOffset, duration).SetEase(easeType);
+                // 关键修复：锁定新物体及其所有子物体中的视觉模块
+                CardVisualModule[] childVisuals = obj.GetComponentsInChildren<CardVisualModule>();
+                foreach (var v in childVisuals)
+                {
+                    v.IsExternalAnimating = true;
+                }
+
+                // 执行父物体位移
+                obj.DOMove(obj.position + enterOffset, duration).SetEase(easeType).OnComplete(() => {
+                    // 动画完成后恢复视觉模块的控制
+                    if (obj != null)
+                    {
+                        CardVisualModule[] childVisuals = obj.GetComponentsInChildren<CardVisualModule>();
+                        foreach (var v in childVisuals)
+                        {
+                            v.IsExternalAnimating = false;
+                        }
+                    }
+                });
             }
         }
     }
