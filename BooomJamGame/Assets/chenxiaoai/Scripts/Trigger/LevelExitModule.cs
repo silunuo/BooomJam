@@ -46,7 +46,15 @@ public class LevelExitModule : MonoBehaviour
         hasExited = true;
         Debug.Log($"[{gameObject.name}] 检测到玩家，正在准备进入下一关: {targetSceneName}");
 
-        // 跳转场景
-        SceneManager.LoadScene(targetSceneName);
+        // 如果存在转换管理器，使用过渡效果跳转
+        if (SceneTransitionManager.instance != null)
+        {
+            SceneTransitionManager.instance.TransitionToScene(targetSceneName);
+        }
+        else
+        {
+            // 否则直接跳转
+            SceneManager.LoadScene(targetSceneName);
+        }
     }
 }

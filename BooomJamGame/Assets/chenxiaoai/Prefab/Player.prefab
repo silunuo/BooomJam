@@ -696,6 +696,11 @@ MonoBehaviour:
   hitFlashColor: {r: 0.8113208, g: 0.12705584, b: 0.12705584, a: 1}
   hitFlashIntensity: 1
   hitFlashDuration: 1
+  speedMultiplierPerTurn: 0.7
+  minAttackDuration: 0.05
+  minRetaliationDelay: 0.1
+  combatSnapDistance: 5
+  enterCombatPosDuration: 0.3
   emissionColorProperty: _EmissionColor
   emissionStrengthProperty: _EmissionStrength
 --- !u!54 &-7006988848475506736

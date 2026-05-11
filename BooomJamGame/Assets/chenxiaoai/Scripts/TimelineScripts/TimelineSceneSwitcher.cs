@@ -39,6 +39,16 @@ public class TimelineSceneSwitcher : MonoBehaviour
         }
 
         Debug.Log($"Timeline 播放结束，正在跳转到场景: {targetSceneName}");
-        SceneManager.LoadScene(targetSceneName);
+        
+        // 如果存在转换管理器，使用瞬间黑屏跳转（跳过淡入）
+        if (SceneTransitionManager.instance != null)
+        {
+            SceneTransitionManager.instance.InstantTransitionToScene(targetSceneName);
+        }
+        else
+        {
+            // 否则直接跳转
+            SceneManager.LoadScene(targetSceneName);
+        }
     }
 }

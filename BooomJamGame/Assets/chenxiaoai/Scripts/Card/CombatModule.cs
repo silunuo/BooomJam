@@ -18,6 +18,20 @@ public class CombatModule : ModuleBase
     [Tooltip("红光闪烁持续时间")]
     public float hitFlashDuration = 0.3f;
 
+    [Header("Acceleration Settings")]
+    [Tooltip("每回合减少的时间比例 (例如 0.8 表示下一回合时间是现在的 80%)")]
+    public float speedMultiplierPerTurn = 0.85f;
+    [Tooltip("最小动画持续时间，防止无限变快")]
+    public float minAttackDuration = 0.05f;
+    [Tooltip("最小延迟时间")]
+    public float minRetaliationDelay = 0.1f;
+
+    [Header("Positioning Settings")]
+    [Tooltip("战斗时距离敌人的固定间距")]
+    public float combatSnapDistance = 1.2f;
+    [Tooltip("进入战斗位置的平滑时间")]
+    public float enterCombatPosDuration = 0.3f;
+
     [Header("Shader Properties")]
     public string emissionColorProperty = "_EmissionColor";
     public string emissionStrengthProperty = "_EmissionStrength";
@@ -62,13 +76,55 @@ public class CombatModule : ModuleBase
     /// <summary>
     /// 触发战斗序列，直到一方死亡
     /// </summary>
-    public IEnumerator PerformCombatSequence(EntityCore targetCore, Vector3 returnPos)
+    public IEnumerator PerformCombatSequence(EntityCore targetCore, Vector3 originalReturnPos)
     {
         if (isCombatInProgress) yield break;
         isCombatInProgress = true;
 
         // 获取目标战斗模块
         CombatModule targetCombat = targetCore.GetComponent<CombatModule>();
+
+        // --- 0. 计算并移动到正方向战斗位置 ---
+        Vector3 enemyPos = targetCore.transform.position;
+        Vector3 playerPos = transform.position;
+        Vector3 directionToPlayer = (playerPos - enemyPos);
+        directionToPlayer.y = 0; // 忽略高度差
+
+        Vector3 snapDirection;
+        // 判断主要方向
+        if (Mathf.Abs(directionToPlayer.x) > Mathf.Abs(directionToPlayer.z))
+        {
+            // 左右方向
+            snapDirection = directionToPlayer.x > 0 ? Vector3.right : Vector3.left;
+        }
+        else
+        {
+            // 前后方向
+            snapDirection = directionToPlayer.z > 0 ? Vector3.forward : Vector3.back;
+        }
+
+        Vector3 combatStartPos = enemyPos + snapDirection * combatSnapDistance;
+         // 修正：强制将玩家的高度设置为与敌人一致，防止卡牌在空中对打
+         combatStartPos.y = enemyPos.y; 
+ 
+         // 平滑移动到这个正方向位置
+         yield return StartCoroutine(MoveTo(combatStartPos, enterCombatPosDuration));
+         
+         // 更新后续弹回的位置
+         Vector3 returnPos = combatStartPos;
+
+         // 确保战斗过程中的高度统一（处理可能的微小偏差）
+         returnPos.y = enemyPos.y;
+
+        // 同步更新视觉模块的基础位置，防止战斗结束后跳回
+        CardVisualModule visual = GetComponent<CardVisualModule>();
+        if (visual != null)
+        {
+            visual.SyncBasePosition();
+        }
+
+        float currentAttackDur = attackDuration;
+        float currentRetalDelay = retaliationDelay;
 
         // 战斗主循环：直到一方生命值为 0
         while (Core.currentHealth > 0 && targetCore.currentHealth > 0)
@@ -78,7 +134,7 @@ public class CombatModule : ModuleBase
             Vector3 attackPos = targetCore.transform.position;
             
             // 动画：冲过去
-            yield return StartCoroutine(MoveTo(attackPos, attackDuration));
+            yield return StartCoroutine(MoveTo(attackPos, currentAttackDur));
 
             // 伤害结算：目标扣血
             int damage = Mathf.Max(0, Core.attack - targetCore.defense);
@@ -92,7 +148,7 @@ public class CombatModule : ModuleBase
             }
 
             // 动画：弹回原位
-            yield return StartCoroutine(MoveTo(returnPos, attackDuration));
+            yield return StartCoroutine(MoveTo(returnPos, currentAttackDur));
 
             // 检查目标是否死亡
             if (targetCore.currentHealth <= 0)
@@ -103,13 +159,13 @@ public class CombatModule : ModuleBase
             }
 
             // --- 2. 目标反击 ---
-            yield return new WaitForSeconds(retaliationDelay);
+            yield return new WaitForSeconds(currentRetalDelay);
             
             if (targetCombat != null)
             {
                 Vector3 targetStartPos = targetCore.transform.position;
                 // 反击动画：目标冲向当前实体
-                yield return StartCoroutine(targetCombat.MoveTo(transform.position, attackDuration));
+                yield return StartCoroutine(targetCombat.MoveTo(transform.position, currentAttackDur));
 
                 // 伤害结算：自身扣血
                 int counterDamage = Mathf.Max(0, targetCore.attack - Core.defense);
@@ -120,7 +176,7 @@ public class CombatModule : ModuleBase
                 StartCoroutine(FlashHitEffect());
 
                 // 目标弹回原位
-                yield return StartCoroutine(targetCombat.MoveTo(targetStartPos, attackDuration));
+                yield return StartCoroutine(targetCombat.MoveTo(targetStartPos, currentAttackDur));
             }
 
             // 检查自身是否死亡
@@ -131,8 +187,12 @@ public class CombatModule : ModuleBase
                 break; // 结束战斗循环
             }
 
-            // 每轮战斗结束后的短暂间歇
-            yield return new WaitForSeconds(0.2f);
+            // 每轮战斗结束后的短暂停歇，并加速下一回合
+            yield return new WaitForSeconds(currentRetalDelay);
+            
+            // 加速：减少动画时长和延迟
+            currentAttackDur = Mathf.Max(minAttackDuration, currentAttackDur * speedMultiplierPerTurn);
+            currentRetalDelay = Mathf.Max(minRetaliationDelay, currentRetalDelay * speedMultiplierPerTurn);
         }
 
         isCombatInProgress = false;

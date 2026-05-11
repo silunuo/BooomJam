@@ -60,16 +60,18 @@ public class CardVisualModule : ModuleBase
             if (!isExternalAnimating)
             {
                 basePosition = transform.position;
-                if (!isHovering)
-                {
-                    targetPosition = basePosition;
-                }
-                else
-                {
-                    targetPosition = basePosition + Vector3.up * hoverHeight;
-                }
+                targetPosition = basePosition;
             }
         }
+    }
+
+    /// <summary>
+    /// 手动强制刷新基础位置（用于战斗位置同步）
+    /// </summary>
+    public void SyncBasePosition()
+    {
+        basePosition = transform.position;
+        targetPosition = basePosition;
     }
 
     public override void OnModuleLoad(EntityCore entity)
@@ -214,10 +216,10 @@ public class CardVisualModule : ModuleBase
                         CombatModule myCombat = GetComponent<CombatModule>();
                         if (myCombat != null)
                         {
-                            Vector3 finalBasePos = new Vector3(transform.position.x, basePosition.y, transform.position.z);
-                            StartCoroutine(myCombat.PerformCombatSequence(targetCore, finalBasePos));
-                            basePosition = finalBasePos;
-                            targetPosition = basePosition;
+                            // 这里不再传递 finalBasePos，因为 CombatModule 内部会计算新的正方向位置
+                            StartCoroutine(myCombat.PerformCombatSequence(targetCore, basePosition));
+                            // 注意：basePosition 的更新会在战斗开始时由 CombatModule 处理（视觉上）
+                            // 为了同步逻辑位置，我们在战斗协程中处理它，或者在这里先简单同步
                             return;
                         }
                     }
