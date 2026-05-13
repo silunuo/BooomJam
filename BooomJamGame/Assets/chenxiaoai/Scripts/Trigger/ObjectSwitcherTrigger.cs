@@ -28,11 +28,15 @@ public class ObjectSwitcherTrigger : MonoBehaviour
     [Header("State")]
     private bool hasTriggered = false;
     private bool isAnimating = false;
+    
+    // 全局静态锁：确保同一时间只有一个触发器在执行位移逻辑
+    private static bool isAnyTriggerRunning = false;
 
     private void OnTriggerEnter(Collider other)
     {
         EntityCore core = other.GetComponent<EntityCore>();
-        if (core != null && core.type == EntityType.Player && !hasTriggered && !isAnimating)
+        // 增加全局锁判断：!isAnyTriggerRunning
+        if (core != null && core.type == EntityType.Player && !hasTriggered && !isAnimating && !isAnyTriggerRunning)
         {
             SwitchObjects();
         }
@@ -52,7 +56,8 @@ public class ObjectSwitcherTrigger : MonoBehaviour
     {
         hasTriggered = true;
         isAnimating = true;
-        Debug.Log("触发物体位移切换...");
+        isAnyTriggerRunning = true; // 开启全局锁
+        Debug.Log($"触发物体位移切换: {gameObject.name}");
 
         int totalTweens = objectsToExit.Length + objectsToEnter.Length;
         int completedTweens = 0;
@@ -63,6 +68,7 @@ public class ObjectSwitcherTrigger : MonoBehaviour
             if (completedTweens >= totalTweens)
             {
                 isAnimating = false;
+                isAnyTriggerRunning = false; // 释放全局锁，允许其他触发器工作
             }
         }
 

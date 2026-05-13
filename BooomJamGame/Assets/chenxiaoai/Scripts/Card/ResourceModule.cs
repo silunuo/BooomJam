@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public class ResourceModule : ModuleBase
 {
-    public enum ResourceType { Weapon, Armor, Consumable }
+    public enum ResourceType { Weapon, Armor, Consumable, Gold }
     
     [Header("资源设置")]
     public ResourceType resourceType = ResourceType.Weapon;
@@ -15,14 +15,17 @@ public class ResourceModule : ModuleBase
     public int atkBonus;
     [Tooltip("资源消耗后增加的防御力 (默认取 EntityCore 的 defense)")]
     public int defBonus;
+    [Tooltip("资源消耗后增加的金钱 (如果是 Gold 类型，默认取 EntityCore 的 gold)")]
+    public int goldBonus;
 
     public override void OnModuleLoad(EntityCore entity)
     {
         // 如果没有手动设置，则默认读取 EntityCore 的数值
         if (atkBonus == 0) atkBonus = entity.attack;
         if (defBonus == 0) defBonus = entity.defense;
+        if (goldBonus == 0) goldBonus = entity.gold;
         
-        Debug.Log($"[{gameObject.name}] 资源模块已加载：ATK+{atkBonus}, DEF+{defBonus}");
+        Debug.Log($"[{gameObject.name}] 资源模块已加载：ATK+{atkBonus}, DEF+{defBonus}, GOLD+{goldBonus}");
     }
 
     public override void OnModuleTick()
@@ -45,8 +48,9 @@ public class ResourceModule : ModuleBase
 
         playerCore.attack += atkBonus;
         playerCore.defense += defBonus;
+        playerCore.gold += goldBonus;
 
-        Debug.Log($"[{playerCore.gameObject.name}] 消耗了 [{gameObject.name}]，当前属性：ATK {playerCore.attack}, DEF {playerCore.defense}");
+        Debug.Log($"[{playerCore.gameObject.name}] 消耗了 [{gameObject.name}]，当前属性：ATK {playerCore.attack}, DEF {playerCore.defense}, GOLD {playerCore.gold}");
 
         // 资源卡消失
         Destroy(gameObject);

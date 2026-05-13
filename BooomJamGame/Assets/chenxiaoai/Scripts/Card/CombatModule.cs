@@ -154,6 +154,14 @@ public class CombatModule : ModuleBase
             if (targetCore.currentHealth <= 0)
             {
                 Debug.Log($"[{targetCore.entityName}] 已死亡，正在移除卡牌。");
+                
+                // 击杀奖励：将敌人身上的 gold 增加给玩家
+                if (Core.type == EntityType.Player)
+                {
+                    Core.gold += targetCore.gold;
+                    Debug.Log($"[Combat] 击杀奖励：玩家获得了 {targetCore.gold} 金钱！当前总金钱: {Core.gold}");
+                }
+                
                 Destroy(targetCore.gameObject);
                 break; // 结束战斗循环
             }

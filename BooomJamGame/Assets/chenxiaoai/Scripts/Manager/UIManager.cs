@@ -14,6 +14,17 @@ public class UIManager : MonoBehaviour
     public GameObject spacebar;
     public Image characterPortrait;
 
+    [Header("Card Info Panel")]
+    public GameObject cardInfoPanel;
+    public TextMeshProUGUI infoAtkText;
+    public TextMeshProUGUI infoDefText;
+    public TextMeshProUGUI infoHpText;
+    public TextMeshProUGUI infoNameText;
+    public TextMeshProUGUI infoSkillsText;
+
+    [Header("Top Right HUD")]
+    public TextMeshProUGUI goldText;
+
     public float typewriterSpeed = 0.05f; 
     private Coroutine typewriterCoroutine; 
     private string currentFullDialogue; 
@@ -23,6 +34,100 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
+    }
+
+    public void ShowCardInfo(EntityCore core)
+    {
+        if (cardInfoPanel == null || core == null) return;
+
+        if (infoNameText != null) infoNameText.text = core.entityName;
+        if (infoAtkText != null) infoAtkText.text = core.attack.ToString();
+        if (infoDefText != null) infoDefText.text = core.defense.ToString();
+        if (infoHpText != null) infoHpText.text = $"{core.currentHealth}/{core.maxHealth}";
+        if (infoSkillsText != null) 
+        {
+            if (core.skills != null && core.skills.Count > 0)
+                infoSkillsText.text = string.Join(", ", core.skills);
+            else
+                infoSkillsText.text = "无";
+        }
+
+        cardInfoPanel.SetActive(true);
+        // 标记刚刚开启，防止同一帧的点击立刻关闭它
+        StartCoroutine(ResetClickFlag());
+    }
+
+    private bool justOpened = false;
+    private IEnumerator ResetClickFlag()
+    {
+        justOpened = true;
+        yield return new WaitForEndOfFrame();
+        justOpened = false;
+    }
+
+    private void Update()
+    {
+        // 实时更新金钱显示
+        UpdateGoldUI();
+
+        // 如果面板开启中，且玩家点击了鼠标左键
+        if (cardInfoPanel != null && cardInfoPanel.activeSelf && Input.GetMouseButtonDown(0) && !justOpened)
+        {
+            // 检测点击是否在面板外
+            if (!RectTransformUtility.RectangleContainsScreenPoint(
+                cardInfoPanel.GetComponent<RectTransform>(), 
+                Input.mousePosition, 
+                null))
+            {
+                HideCardInfo();
+            }
+        }
+    }
+
+    public void UpdateGoldUI()
+    {
+        if (goldText == null)
+        {
+            Debug.LogWarning("[UIManager] Gold Text 引用为空！请检查 Inspector 中的绑定。");
+            return;
+        }
+        
+        // 遍历所有 EntityCore，找到真正的 Player
+        EntityCore player = null;
+        foreach (var core in FindObjectsOfType<EntityCore>())
+        {
+            if (core.type == EntityType.Player)
+            {
+                player = core;
+                break;
+            }
+        }
+        
+        if (player != null)
+        { 
+            goldText.text = $"Gold: {player.gold}";
+        }
+    }
+
+    /// <summary>
+    /// UI 按钮点击事件：打开商店界面
+    /// </summary>
+    public void OnShopButtonClick()
+    {
+        if (ShopManager.instance != null)
+        {
+            ShopManager.instance.OpenShop();
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] 场景中没有找到 ShopManager 实例，无法打开商店。");
+        }
+    }
+
+    public void HideCardInfo()
+    {
+        if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
     }
 
     private void StopTypewriter()

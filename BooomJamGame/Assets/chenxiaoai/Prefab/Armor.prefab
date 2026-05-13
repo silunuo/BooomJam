@@ -521,6 +521,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8797394664210040288, guid: a875d4da9ac9f2a4398ad20ae574a825,
         type: 3}
+      propertyPath: gold
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8797394664210040288, guid: a875d4da9ac9f2a4398ad20ae574a825,
+        type: 3}
       propertyPath: type
       value: 1
       objectReference: {fileID: 0}
@@ -678,9 +683,11 @@ MonoBehaviour:
   enableBobbing: 0
   bobAmount: 0.1
   bobSpeed: 2
-  detectionRadius: 0.5
+  resourceDetectionRadius: 0.5
+  combatDetectionRadius: 0.5
   snapOffset: {x: 0, y: 0, z: -0.4}
   snapDuration: 0.3
+  longPressThreshold: 0.15
 --- !u!114 &5693618445096418756
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -47,6 +47,12 @@ public class CardVisualModule : ModuleBase
     private bool isDragging = false;
     private bool isExternalAnimating = false;
 
+    [Header("Input Settings")]
+    [Tooltip("长按判定时间 (秒)，超过此时间则判定为拖拽")]
+    public float longPressThreshold = 0.1f;
+    private float mouseDownTime;
+    private bool potentialClick = false;
+
     private Plane dragPlane;
     private Vector3 dragOffset;
 
@@ -102,6 +108,15 @@ public class CardVisualModule : ModuleBase
     {
         if (isExternalAnimating) return;
 
+        // 处理长按逻辑
+        if (potentialClick && !isDragging)
+        {
+            if (Time.time - mouseDownTime > longPressThreshold)
+            {
+                StartDragging();
+            }
+        }
+
         // 如果正在拖拽，实时更新目标位置
         if (isDragging)
         {
@@ -134,7 +149,9 @@ public class CardVisualModule : ModuleBase
         if (dragPlane.Raycast(ray, out float enter))
         {
             Vector3 pointOnPlane = ray.GetPoint(enter);
+            // 拖拽时，目标位置始终保持在悬浮高度
             targetPosition = pointOnPlane + dragOffset;
+            targetPosition.y = basePosition.y + hoverHeight;
         }
     }
 
@@ -169,24 +186,37 @@ public class CardVisualModule : ModuleBase
     }
 
     /// <summary>
-    /// 鼠标按下开始拖拽
+    /// 鼠标按下
     /// </summary>
     private void OnMouseDown()
     {
         if (isExternalAnimating) return;
-
-        isDragging = true;
         
-        // 创建一个位于卡牌当前高度的水平面
-        dragPlane = new Plane(Vector3.up, transform.position);
+        mouseDownTime = Time.time;
+        potentialClick = true;
+    }
 
-        // 计算鼠标点击点与卡牌中心的偏移，防止卡牌瞬间“跳”到鼠标中心
+    private void StartDragging()
+    {
+        isDragging = true;
+        potentialClick = false; // 既然已经开始拖拽，就不再是点击
+        
+        // 拖拽时保持高亮
+        targetEmission = hoverEmission;
+        
+        // 创建一个位于悬浮高度的水平面，确保拖拽时卡牌高度一致
+        dragPlane = new Plane(Vector3.up, new Vector3(transform.position.x, basePosition.y + hoverHeight, transform.position.z));
+
+        // 计算鼠标点击点与卡牌中心的偏移
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (dragPlane.Raycast(ray, out float enter))
         {
             Vector3 hitPoint = ray.GetPoint(enter);
             dragOffset = transform.position - hitPoint;
         }
+
+        // 拖拽时隐藏信息面板
+        if (UIManager.instance != null) UIManager.instance.HideCardInfo();
     }
 
     /// <summary>
@@ -194,6 +224,18 @@ public class CardVisualModule : ModuleBase
     /// </summary>
     private void OnMouseUp()
     {
+        if (potentialClick)
+        {
+            // 如果松开时还没达到长按阈值，判定为点击
+            float pressDuration = Time.time - mouseDownTime;
+            if (pressDuration <= longPressThreshold)
+            {
+                if (UIManager.instance != null) UIManager.instance.ShowCardInfo(Core);
+            }
+            potentialClick = false;
+            return;
+        }
+
         if (!isDragging) return;
 
         isDragging = false;
