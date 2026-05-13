@@ -162,7 +162,7 @@ public class CombatModule : ModuleBase
                     Debug.Log($"[Combat] 击杀奖励：玩家获得了 {targetCore.gold} 金钱！当前总金钱: {Core.gold}");
                 }
                 
-                Destroy(targetCore.gameObject);
+                yield return StartCoroutine(RemoveCardWithDeathEffect(targetCore.gameObject));
                 break; // 结束战斗循环
             }
 
@@ -191,7 +191,7 @@ public class CombatModule : ModuleBase
             if (Core.currentHealth <= 0)
             {
                 Debug.Log($"[{Core.entityName}] 已死亡，正在移除玩家卡牌。");
-                Destroy(gameObject);
+                yield return StartCoroutine(RemoveCardWithDeathEffect(gameObject));
                 break; // 结束战斗循环
             }
 
@@ -220,6 +220,26 @@ public class CombatModule : ModuleBase
             yield return null;
         }
         transform.position = targetPos;
+    }
+
+    /// <summary>
+    /// 移除死亡卡牌：有燃烧溶解组件时先播放动画，结束后再销毁。
+    /// 注意：调用到这里时，死亡判定和奖励结算已经完成；动画只会延后 Destroy。
+    /// 后续如果死亡期间还能被点击或检测到，可以先禁用 Collider / CardVisualModule。
+    /// </summary>
+    private IEnumerator RemoveCardWithDeathEffect(GameObject cardObject)
+    {
+        if (cardObject == null) yield break;
+
+        if (cardObject.TryGetComponent(out CardBurnDissolve burnDissolve))
+        {
+            yield return burnDissolve.PlayAndWait();
+        }
+
+        if (cardObject != null)
+        {
+            Destroy(cardObject);
+        }
     }
 
     /// <summary>
