@@ -12,7 +12,7 @@ public class ShopManager : MonoBehaviour
 
     [Header("UI Components")]
     public RectTransform shopPanel;
-    public Image blockerMask; // 新增遮罩引用
+    public UnityEngine.UI.Image blockerMask; // 重新加入遮罩引用
     public Button buyAttackBtn;
     public Button buyDefenseBtn;
     public Button buyHealthBtn;
@@ -39,6 +39,9 @@ public class ShopManager : MonoBehaviour
         {
             shopPanel.anchoredPosition = hiddenPos;
         }
+
+        // 初始关闭遮罩
+        if (blockerMask != null) blockerMask.enabled = false;
 
         // 绑定按钮事件
         if (buyAttackBtn != null) buyAttackBtn.onClick.AddListener(() => Purchase("Attack"));
@@ -69,10 +72,13 @@ public class ShopManager : MonoBehaviour
 
     public void OpenShop()
     {
-        if (blockerMask != null) blockerMask.enabled = true; // 开启时激活遮罩
+        // 开启面板时激活遮罩并拦截 3D 场景
+        if (blockerMask != null) blockerMask.enabled = true;
+        UIManager.IsBlocking3DScene = true;
+
         if (shopPanel != null)
         {
-            shopPanel.DOAnchorPos(visiblePos, slideDuration).SetEase(Ease.OutBack);
+            shopPanel.DOAnchorPos(visiblePos, slideDuration).SetEase(Ease.OutBack).SetUpdate(true);
         }
     }
 
@@ -80,13 +86,17 @@ public class ShopManager : MonoBehaviour
     {
         if (shopPanel != null)
         {
-            shopPanel.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InBack).OnComplete(() => {
-                if (blockerMask != null) blockerMask.enabled = false; // 关闭后禁用遮罩
+            shopPanel.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InBack).SetUpdate(true)
+            .OnComplete(() => {
+                // 面板完全退场后禁用遮罩并恢复 3D 场景
+                if (blockerMask != null) blockerMask.enabled = false;
+                UIManager.IsBlocking3DScene = false;
             });
         }
         else
         {
             if (blockerMask != null) blockerMask.enabled = false;
+            UIManager.IsBlocking3DScene = false;
         }
     }
 

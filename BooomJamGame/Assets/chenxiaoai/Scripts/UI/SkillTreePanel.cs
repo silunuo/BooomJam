@@ -14,13 +14,6 @@ public class SkillTreePanel : MonoBehaviour
     public TextMeshProUGUI skillPointsText;
     public Button closeButton;
 
-    [Header("Animation Settings")]
-    public RectTransform mainPanelRect; // 需要滑动的面板
-    public Image blockerMask; // 全屏遮罩图片，用于防止误触
-    public float slideDuration = 0.5f;
-    public Vector2 hiddenPos = new Vector2(0, 1200);
-    public Vector2 visiblePos = Vector2.zero;
-
     [Header("Detail Panel References")]
     public GameObject detailPanel;
     public TextMeshProUGUI detailNameText;
@@ -35,18 +28,17 @@ public class SkillTreePanel : MonoBehaviour
     private void Awake()
     {
         allNodes = GetComponentsInChildren<SkillNodeUI>(true);
-        if (closeButton != null) closeButton.onClick.AddListener(ClosePanel);
         
-        // 初始化详情面板按钮
+        // 绑定按钮事件
+        if (closeButton != null) 
+        {
+            closeButton.onClick.RemoveAllListeners();
+            closeButton.onClick.AddListener(() => SkillTreeManager.instance.CloseSkillTree());
+        }
+        
         if (confirmButton != null) confirmButton.onClick.AddListener(OnConfirmUnlock);
         if (cancelButton != null) cancelButton.onClick.AddListener(() => detailPanel?.SetActive(false));
         
-        // 初始位置设置
-        if (mainPanelRect != null)
-        {
-            mainPanelRect.anchoredPosition = hiddenPos;
-        }
-
         // 初始隐藏详情面板
         if (detailPanel != null) detailPanel.SetActive(false);
     }
@@ -54,39 +46,7 @@ public class SkillTreePanel : MonoBehaviour
     private void OnEnable()
     {
         RefreshAllNodes();
-        // 每次开启面板时也确保详情面板是关闭的
         if (detailPanel != null) detailPanel.SetActive(false);
-        
-        // 播放进入动画
-        OpenPanel();
-    }
-
-    public void OpenPanel()
-    {
-        if (blockerMask != null) blockerMask.enabled = true; // 开始滑动时激活遮罩
-        
-        if (mainPanelRect != null)
-        {
-            mainPanelRect.DOKill();
-            mainPanelRect.DOAnchorPos(visiblePos, slideDuration).SetEase(Ease.OutBack);
-        }
-    }
-
-    public void ClosePanel()
-    {
-        if (mainPanelRect != null)
-        {
-            mainPanelRect.DOKill();
-            mainPanelRect.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InBack).OnComplete(() => {
-                if (blockerMask != null) blockerMask.enabled = false; // 完全隐藏后关闭遮罩
-                gameObject.SetActive(false);
-            });
-        }
-        else
-        {
-            if (blockerMask != null) blockerMask.enabled = false;
-            gameObject.SetActive(false);
-        }
     }
 
     public void RefreshAllNodes()

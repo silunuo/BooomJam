@@ -33,13 +33,12 @@ public class GoldTrigger : MonoBehaviour
         GameManager.instance.skillPoints += skillPointsToAdd;
         Debug.Log($"[GoldTrigger] 玩家获得 {skillPointsToAdd} 点技能值。当前总计: {GameManager.instance.skillPoints}");
 
-        // 同步刷新技能树 UI（如果面板当前是开启状态）
-        if (UIManager.instance != null && UIManager.instance.skillTreePanel != null)
+        // 同步刷新技能树 UI（通过 SkillTreeManager 访问）
+        if (SkillTreeManager.instance != null && SkillTreeManager.instance.skillTreePanelRect != null)
         {
-            SkillTreePanel panel = UIManager.instance.skillTreePanel.GetComponent<SkillTreePanel>();
-            if (panel != null && UIManager.instance.skillTreePanel.activeSelf)
+            if (SkillTreeManager.instance.panelScript != null)
             {
-                panel.RefreshAllNodes();
+                SkillTreeManager.instance.panelScript.RefreshAllNodes();
             }
         }
 

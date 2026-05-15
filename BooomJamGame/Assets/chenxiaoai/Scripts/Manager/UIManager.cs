@@ -25,12 +25,16 @@ public class UIManager : MonoBehaviour
     [Header("Top Right HUD")]
     public TextMeshProUGUI goldText;
 
-    [Header("Skill Tree Panel")]
-    public GameObject skillTreePanel;
-
+    [Header("Settings")]
     public float typewriterSpeed = 0.05f; 
     private Coroutine typewriterCoroutine; 
     private string currentFullDialogue; 
+    private EntityCore displayedCore; // 记录当前正在显示的实体，以便实时刷新数值
+
+    /// <summary>
+    /// 全局标记：当前是否有 UI 面板打开并拦截 3D 场景交互
+    /// </summary>
+    public static bool IsBlocking3DScene { get; set; } = false;
 
     public bool IsTyping => typewriterCoroutine != null;
 
@@ -38,17 +42,16 @@ public class UIManager : MonoBehaviour
     {
         instance = this;
         if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
-        if (skillTreePanel != null) skillTreePanel.SetActive(false);
     }
 
     public void ShowCardInfo(EntityCore core)
     {
         if (cardInfoPanel == null || core == null) return;
+        displayedCore = core; // 记录当前实体
 
         if (infoNameText != null) infoNameText.text = core.entityName;
-        if (infoAtkText != null) infoAtkText.text = core.attack.ToString();
-        if (infoDefText != null) infoDefText.text = core.defense.ToString();
-        if (infoHpText != null) infoHpText.text = $"{core.currentHealth}/{core.maxHealth}";
+        RefreshInfoPanelValues(); // 立即刷新一次数值
+
         if (infoSkillsText != null) 
         {
             if (core.skills != null && core.skills.Count > 0)
@@ -60,6 +63,16 @@ public class UIManager : MonoBehaviour
         cardInfoPanel.SetActive(true);
         // 标记刚刚开启，防止同一帧的点击立刻关闭它
         StartCoroutine(ResetClickFlag());
+    }
+
+    // 新增：实时刷新详情面板数值的方法
+    private void RefreshInfoPanelValues()
+    {
+        if (displayedCore == null) return;
+        
+        if (infoAtkText != null) infoAtkText.text = displayedCore.attack.ToString();
+        if (infoDefText != null) infoDefText.text = displayedCore.defense.ToString();
+        if (infoHpText != null) infoHpText.text = $"{displayedCore.currentHealth}/{displayedCore.maxHealth}";
     }
 
     private bool justOpened = false;
@@ -75,15 +88,13 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void OnSkillTreeButtonClick()
     {
-        if (skillTreePanel != null)
-        { 
-            skillTreePanel.SetActive(true);
-            // 可以在这里调用面板的刷新逻辑
-            skillTreePanel.GetComponent<SkillTreePanel>()?.RefreshAllNodes();
+        if (SkillTreeManager.instance != null)
+        {
+            SkillTreeManager.instance.OpenSkillTree();
         }
         else
-        { 
-            Debug.LogWarning("[UIManager] 场景中没有找到 SkillTreePanel 引用。");
+        {
+            Debug.LogWarning("[UIManager] 场景中没有找到 SkillTreeManager 实例。");
         }
     }
 
@@ -91,6 +102,12 @@ public class UIManager : MonoBehaviour
     {
         // 实时更新金钱显示
         UpdateGoldUI();
+
+        // 如果详情面板开启中，实时同步当前实体的最新数值
+        if (cardInfoPanel != null && cardInfoPanel.activeSelf && displayedCore != null)
+        {
+            RefreshInfoPanelValues();
+        }
 
         // 如果面板开启中，且玩家点击了鼠标左键
         if (cardInfoPanel != null && cardInfoPanel.activeSelf && Input.GetMouseButtonDown(0) && !justOpened)
@@ -108,11 +125,8 @@ public class UIManager : MonoBehaviour
 
     public void UpdateGoldUI()
     {
-        if (goldText == null)
-        {
-            Debug.LogWarning("[UIManager] Gold Text 引用为空！请检查 Inspector 中的绑定。");
-            return;
-        }
+        // 取消警告，如果没有绑定金币文本则直接返回
+        if (goldText == null) return;
         
         // 遍历所有 EntityCore，找到真正的 Player
         EntityCore player = null;

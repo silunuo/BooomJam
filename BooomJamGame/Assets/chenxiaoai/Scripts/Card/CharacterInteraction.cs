@@ -58,7 +58,7 @@ public class CharacterInteraction : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        if (isPlayingTimeline) return;
+        if (isPlayingTimeline || UIManager.IsBlocking3DScene) return;
         
         isHovering = true;
         targetIntensity = hoverIntensity;
@@ -66,13 +66,19 @@ public class CharacterInteraction : MonoBehaviour
 
     private void OnMouseExit()
     {
+        if (UIManager.IsBlocking3DScene)
+        {
+            isHovering = false;
+            return;
+        }
+
         isHovering = false;
         targetIntensity = normalIntensity;
     }
 
     private void OnMouseDown()
     {
-        if (director != null && !isPlayingTimeline)
+        if (director != null && !isPlayingTimeline && !UIManager.IsBlocking3DScene)
         {
             PlayInteractionTimeline();
         }

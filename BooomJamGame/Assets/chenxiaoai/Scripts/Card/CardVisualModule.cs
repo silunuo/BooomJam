@@ -166,7 +166,7 @@ public class CardVisualModule : ModuleBase
     /// </summary>
     private void OnMouseEnter()
     {
-        if (isDragging) return;
+        if (isDragging || UIManager.IsBlocking3DScene) return;
         isHovering = true;
         targetPosition = basePosition + Vector3.up * hoverHeight;
         targetEmission = hoverEmission;
@@ -177,6 +177,12 @@ public class CardVisualModule : ModuleBase
     /// </summary>
     private void OnMouseExit()
     {
+        if (UIManager.IsBlocking3DScene)
+        {
+            isHovering = false;
+            return;
+        }
+
         isHovering = false;
         if (!isDragging)
         {
@@ -190,7 +196,7 @@ public class CardVisualModule : ModuleBase
     /// </summary>
     private void OnMouseDown()
     {
-        if (isExternalAnimating) return;
+        if (isExternalAnimating || UIManager.IsBlocking3DScene) return;
         
         mouseDownTime = Time.time;
         potentialClick = true;

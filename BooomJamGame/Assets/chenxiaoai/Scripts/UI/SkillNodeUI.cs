@@ -18,33 +18,47 @@ public class SkillNodeUI : MonoBehaviour
     [Header("UI References")]
     public Image icon;
     public Button button;
+
+    [Header("Visual Config")]
+    [Tooltip("解锁后的正常颜色（通常设为白色）")]
     public Color unlockedColor = Color.white;
-    public Color lockedColor = Color.gray;
-    public Color canUnlockColor = Color.yellow;
+
+    private ColorBlock initialColors; // 自动获取 Button 组件上的初始配置
 
     private void Awake()
     {
         if (button == null) button = GetComponent<Button>();
+        
+        // 自动记住您在 Button 组件上配好的那一套颜色（点击前的灰色系列）
+        if (button != null) initialColors = button.colors;
+
         button.onClick.AddListener(OnNodeClicked);
+        
+        // 初始刷新一次
+        RefreshUI();
     }
 
     public void RefreshUI()
     {
-        if (GameManager.instance == null) return;
+        if (GameManager.instance == null || button == null) return;
 
         bool isUnlocked = GameManager.instance.IsSkillUnlocked(skillID);
-        bool canUnlock = CanBeUnlocked();
 
-        // 更新颜色
+        // 获取当前按钮的颜色块副本
+        ColorBlock cb = initialColors;
+
         if (isUnlocked)
-            icon.color = unlockedColor;
-        else if (canUnlock)
-            icon.color = canUnlockColor;
-        else
-            icon.color = lockedColor;
+        {
+            // 如果解锁了，我们把正常、高亮、选中状态都改为解锁色（白色）
+            cb.normalColor = unlockedColor;
+            cb.highlightedColor = unlockedColor;
+            cb.selectedColor = unlockedColor;
+            // 按下状态可以稍微深一点或者保持不变，这里根据 initialColors 的比例调整或保持
+        }
+        // 如果未解锁，cb 保持为 initialColors（即您在 Button 组件配好的灰色系列）
 
-        // 更新交互状态：已解锁或目前无法解锁时不可点击
-        button.interactable = !isUnlocked && canUnlock;
+        button.colors = cb;
+        button.interactable = true; 
     }
 
     public bool CanBeUnlocked()
@@ -109,18 +123,13 @@ public class SkillNodeUI : MonoBehaviour
 
         if (player == null) return;
 
-        // 根据表格效果实现逻辑（示例）
-        switch (skillID)
+        // 核心：将解锁的技能名称添加到玩家的技能列表中
+        // 战斗逻辑（CombatModule）会根据这个列表触发对应效果
+        if (!player.skills.Contains(skillName))
         {
-            case "skill_WildStrike": // 狂野一击（攻击类一阶）
-                player.attack += 5;
-                break;
-            case "skill_BloodBlade": // 嗜血之刃（攻击类二阶）
-                // 特殊逻辑实现...
-                break;
-            // ... 继续添加其他技能效果
+            player.skills.Add(skillName);
         }
 
-        Debug.Log($"[SkillTree] 解锁技能 {skillName}，应用效果。");
+        Debug.Log($"[SkillTree] 解锁技能 {skillName}，已注册到玩家技能列表。");
     }
 }
