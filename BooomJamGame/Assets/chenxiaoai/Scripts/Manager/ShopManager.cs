@@ -12,6 +12,7 @@ public class ShopManager : MonoBehaviour
 
     [Header("UI Components")]
     public RectTransform shopPanel;
+    public Image blockerMask; // 新增遮罩引用
     public Button buyAttackBtn;
     public Button buyDefenseBtn;
     public Button buyHealthBtn;
@@ -68,6 +69,7 @@ public class ShopManager : MonoBehaviour
 
     public void OpenShop()
     {
+        if (blockerMask != null) blockerMask.enabled = true; // 开启时激活遮罩
         if (shopPanel != null)
         {
             shopPanel.DOAnchorPos(visiblePos, slideDuration).SetEase(Ease.OutBack);
@@ -78,7 +80,13 @@ public class ShopManager : MonoBehaviour
     {
         if (shopPanel != null)
         {
-            shopPanel.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InBack);
+            shopPanel.DOAnchorPos(hiddenPos, slideDuration).SetEase(Ease.InBack).OnComplete(() => {
+                if (blockerMask != null) blockerMask.enabled = false; // 关闭后禁用遮罩
+            });
+        }
+        else
+        {
+            if (blockerMask != null) blockerMask.enabled = false;
         }
     }
 

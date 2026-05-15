@@ -630,6 +630,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3384466069486989498}
+    - targetCorrespondingSourceObject: {fileID: 9063948673198200584, guid: a875d4da9ac9f2a4398ad20ae574a825,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6814303856236581122}
   m_SourcePrefab: {fileID: 100100000, guid: a875d4da9ac9f2a4398ad20ae574a825, type: 3}
 --- !u!4 &753743300101125047 stripped
 Transform:
@@ -682,3 +686,36 @@ MonoBehaviour:
   enterCombatPosDuration: 0.3
   emissionColorProperty: _EmissionColor
   emissionStrengthProperty: _EmissionStrength
+--- !u!114 &6814303856236581122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951063328884322819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a2995b748822b4a94e8e7827703bfb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 0}
+  materialIndex: 0
+  burnMaterial: {fileID: 2100000, guid: 0e17dde798e89784dab618c2d268b947, type: 2}
+  burnMainTextureProperty: _MainTex
+  sourceTextureProperties:
+  - _MainTex
+  - _Texture2D
+  - _BaseMap
+  cutoffProperty: _Cutoff
+  startCutoff: 0
+  endCutoff: 1
+  duration: 0.8
+  destroyAfterComplete: 1
+  disableDirectionDissolve: 1
+  disableVertexAnimation: 1
+  dissolveTypeProperty: _DissolveType
+  dissolveKeyword: _DISSOLVETYPE_ON
+  weightXProperty: _WeightX
+  weightZProperty: _WeightZ
+  speedProperty: _Speed
+  logWarnings: 1

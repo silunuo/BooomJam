@@ -25,6 +25,9 @@ public class UIManager : MonoBehaviour
     [Header("Top Right HUD")]
     public TextMeshProUGUI goldText;
 
+    [Header("Skill Tree Panel")]
+    public GameObject skillTreePanel;
+
     public float typewriterSpeed = 0.05f; 
     private Coroutine typewriterCoroutine; 
     private string currentFullDialogue; 
@@ -35,6 +38,7 @@ public class UIManager : MonoBehaviour
     {
         instance = this;
         if (cardInfoPanel != null) cardInfoPanel.SetActive(false);
+        if (skillTreePanel != null) skillTreePanel.SetActive(false);
     }
 
     public void ShowCardInfo(EntityCore core)
@@ -64,6 +68,23 @@ public class UIManager : MonoBehaviour
         justOpened = true;
         yield return new WaitForEndOfFrame();
         justOpened = false;
+    }
+
+    /// <summary>
+    /// UI 按钮点击事件：打开技能树界面
+    /// </summary>
+    public void OnSkillTreeButtonClick()
+    {
+        if (skillTreePanel != null)
+        { 
+            skillTreePanel.SetActive(true);
+            // 可以在这里调用面板的刷新逻辑
+            skillTreePanel.GetComponent<SkillTreePanel>()?.RefreshAllNodes();
+        }
+        else
+        { 
+            Debug.LogWarning("[UIManager] 场景中没有找到 SkillTreePanel 引用。");
+        }
     }
 
     private void Update()
