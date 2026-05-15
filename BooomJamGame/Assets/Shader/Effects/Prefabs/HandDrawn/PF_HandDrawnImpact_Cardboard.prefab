@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &731590608524115701
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 731590608524115702}
+  - component: {fileID: 731590608524115703}
+  m_Layer: 0
+  m_Name: PF_HandDrawnImpact_Cardboard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &731590608524115702
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731590608524115701}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &731590608524115703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731590608524115701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10cc2624d28d4e3984a9816bf603010f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ImpactMaterial: {fileID: 2100000, guid: 3cbe02945684469a87ef6a83b185dd81, type: 2}
+  m_ImpactTexture: {fileID: 2800000, guid: 0a870f6a25ca5774fa8b014fe435f2a1, type: 3}
+  m_BaseHeight: 1.25
+  m_SurfaceOffset: 0.02
+  m_RandomZRotation: 1
+  m_PlayOnEnable: 1
+  m_AutoDestroy: 1
+  m_Lifetime: 0.45
+  m_StartScale: 0.18
+  m_PeakScale: 3
+  m_EndScale: 0.88
+  m_FadeStart: 0.58
+  m_FlashDuration: 0.14
+  m_SparkMaterial: {fileID: 2100000, guid: b6a2d22c5ccf4b1c8f613fa07ef08cff, type: 2}
+  m_SparkCount: 8
+  m_SparkSpeedMin: 0.55
+  m_SparkSpeedMax: 1.65
+  m_SparkSizeMin: 0.035
+  m_SparkSizeMax: 0.085
+  m_SparkOuterColor: {r: 1, g: 0.14, b: 0.04, a: 0.95}
+  m_SparkInnerColor: {r: 1, g: 0.9, b: 0.18, a: 1}
