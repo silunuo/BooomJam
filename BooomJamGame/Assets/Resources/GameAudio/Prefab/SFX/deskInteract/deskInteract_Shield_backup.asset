@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94938386573b95a4d83f630205230006, type: 3}
+  m_Name: deskInteract_Shield_backup
+  m_EditorClassIdentifier: 
+  sfxID: deskInteract_Shield_backup
+  clips:
+  - {fileID: 8300000, guid: 82175a87d26cd704ba087a4b211a58e5, type: 3}
+  volume: 0.8
+  pitchVariation: 0.03
+  spatialBlend: 0
+  cooldown: 0.08
+  maxConcurrent: 2
+  priority: 2

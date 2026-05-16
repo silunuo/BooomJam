@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &734508291635471001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 734508291635471002}
+  - component: {fileID: 734508291635471003}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &734508291635471002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734508291635471001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &734508291635471003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 734508291635471001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db5339cddc9e8354ab074ead1876edb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMixer: {fileID: 0}
+  sfxEntries:
+  - {fileID: 11400000, guid: 5255393b49bb482fb66d52df012eb678, type: 2}
+  - {fileID: 11400000, guid: f13e3c7f7c5344829bcd597e85f5c749, type: 2}
+  - {fileID: 11400000, guid: ea4c99cf0130474a9c185658bb015a3f, type: 2}
+  - {fileID: 11400000, guid: fa42dd5e8d014138a7a032c627579641, type: 2}
+  - {fileID: 11400000, guid: 5525f735a9db40119e004acaad8574e0, type: 2}
+  - {fileID: 11400000, guid: 998fbb4862b44bb494a32be58c2acf6d, type: 2}
+  - {fileID: 11400000, guid: c4e67fa35c3249cbb7f1c919d7e5a622, type: 2}
+  - {fileID: 11400000, guid: 82af93f84ea54e319b326677402bfb10, type: 2}
+  - {fileID: 11400000, guid: d3b4fc51068b4f29a36b58432eea99b5, type: 2}
+  - {fileID: 11400000, guid: 5b6e1f3d2b9e47b6b328548485a5dd6b, type: 2}
+  - {fileID: 11400000, guid: c10c2f8025844cf38192027ae97a0878, type: 2}
+  - {fileID: 11400000, guid: fb1c7d1ec9eb43cc8070869412f7d08f, type: 2}
+  - {fileID: 11400000, guid: 14996292330a4624904a4a0e3530e31b, type: 2}
+  - {fileID: 11400000, guid: 73aa934158144702826adc1cc1fc1a68, type: 2}
+  - {fileID: 11400000, guid: a71a2fe79fef46289096d4013fa25878, type: 2}
+  - {fileID: 11400000, guid: 777f96766a81410b8548baf1065a3a84, type: 2}
+  - {fileID: 11400000, guid: 74b2b88eca0940a58ffa6d94cc2e2d48, type: 2}
+  - {fileID: 11400000, guid: b9a1a76aa7154422809789a26518043f, type: 2}
+  - {fileID: 11400000, guid: 01c001674df74d048bbbe45228c22884, type: 2}
+  - {fileID: 11400000, guid: 0e825c57ddf348ba85f0b61b53cca22e, type: 2}
+  - {fileID: 11400000, guid: a272039d51d34de9a3eb0938aeb390cb, type: 2}
+  - {fileID: 11400000, guid: 108e4b97976c4884b44bd92972646d2e, type: 2}
+  sfxPoolSize: 12
+  bgmEntries:
+  - {fileID: 11400000, guid: 64d92305daad4948acd2f93668ac342e, type: 2}
+  - {fileID: 11400000, guid: 1cdd4d1d34774dc5afb785c4f1aad788, type: 2}
+  defaultBGMFadeDuration: 1.5
+  defaultMasterVolume: 1
+  defaultBGMVolume: 0.7
+  defaultSFXVolume: 0.8
+  prefsPrefix: Audio
