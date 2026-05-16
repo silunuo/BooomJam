@@ -38,6 +38,14 @@ public class CardVisualModule : ModuleBase
     [Tooltip("吸附动画持续时间")]
     public float snapDuration = 0.3f;
 
+    [Header("Collision Settings")]
+    [Tooltip("是否开启拖拽时的物理碰撞检测")]
+    public bool enableCollision = true;
+    [Tooltip("哪些层级的物体会被视为阻挡墙")]
+    public LayerMask obstacleLayer = 1; // 默认是 Default 层
+    [Tooltip("碰撞检测的半径")]
+    public float collisionRadius = 0.4f;
+
     private Vector3 basePosition;
     private Vector3 targetPosition;
     private Material cardMaterial;
@@ -149,9 +157,33 @@ public class CardVisualModule : ModuleBase
         if (dragPlane.Raycast(ray, out float enter))
         {
             Vector3 pointOnPlane = ray.GetPoint(enter);
-            // 拖拽时，目标位置始终保持在悬浮高度
-            targetPosition = pointOnPlane + dragOffset;
-            targetPosition.y = basePosition.y + hoverHeight;
+            Vector3 proposedPosition = pointOnPlane + dragOffset;
+            proposedPosition.y = basePosition.y + hoverHeight;
+
+            if (enableCollision)
+            {
+                Vector3 moveDir = proposedPosition - transform.position;
+                float moveDist = moveDir.magnitude;
+
+                if (moveDist > 0.001f)
+                {
+                    // 使用 SphereCast 检测从当前位置到目标位置之间是否有墙
+                    if (Physics.SphereCast(transform.position, collisionRadius, moveDir.normalized, out RaycastHit hit, moveDist, obstacleLayer))
+                    {
+                        // 如果撞到了，将目标位置设为撞击点（稍微回退一点防止穿模）
+                        targetPosition = hit.point + hit.normal * (collisionRadius + 0.01f);
+                        targetPosition.y = proposedPosition.y; // 保持 Y 轴高度
+                    }
+                    else
+                    {
+                        targetPosition = proposedPosition;
+                    }
+                }
+            }
+            else
+            {
+                targetPosition = proposedPosition;
+            }
         }
     }
 
