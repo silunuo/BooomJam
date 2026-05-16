@@ -27,7 +27,8 @@ public class GameManager : MonoBehaviour
         public int attack;
         public int defense;
         public int gold;
-        public List<string> skills;
+        public int skillPoints; // 新增技能点存储
+        public List<string> unlockedSkills; // 新增已解锁技能列表
     }
 
     public void SavePlayerData(EntityCore player)
@@ -39,7 +40,8 @@ public class GameManager : MonoBehaviour
         savedPlayerData.attack = player.attack;
         savedPlayerData.defense = player.defense;
         savedPlayerData.gold = player.gold;
-        savedPlayerData.skills = new List<string>(player.skills);
+        savedPlayerData.skillPoints = skillPoints; // 保存当前技能点
+        savedPlayerData.unlockedSkills = new List<string>(unlockedSkillIDs); // 保存已解锁技能
         
         hasSavedData = true;
         Debug.Log("[GameManager] Player data saved.");
@@ -54,9 +56,28 @@ public class GameManager : MonoBehaviour
         player.attack = savedPlayerData.attack;
         player.defense = savedPlayerData.defense;
         player.gold = savedPlayerData.gold;
-        player.skills = new List<string>(savedPlayerData.skills);
+        
+        this.skillPoints = savedPlayerData.skillPoints; // 加载技能点
+        this.unlockedSkillIDs = new List<string>(savedPlayerData.unlockedSkills); // 加载已解锁技能
 
         Debug.Log("[GameManager] Player data loaded.");
+    }
+
+    [Header("Skill Tree Data")]
+    public int skillPoints = 0;
+    public List<string> unlockedSkillIDs = new List<string>();
+
+    public bool IsSkillUnlocked(string skillID)
+    {
+        return unlockedSkillIDs.Contains(skillID);
+    }
+
+    public void UnlockSkill(string skillID)
+    {
+        if (!unlockedSkillIDs.Contains(skillID))
+        {
+            unlockedSkillIDs.Add(skillID);
+        }
     }
 
     private void Awake()

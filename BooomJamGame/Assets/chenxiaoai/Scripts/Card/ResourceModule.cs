@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public class ResourceModule : ModuleBase
 {
-    public enum ResourceType { Weapon, Armor, Consumable, Gold }
+    public enum ResourceType { Weapon, Armor, Consumable, Gold, Drug }
     
     [Header("资源设置")]
     public ResourceType resourceType = ResourceType.Weapon;
@@ -17,6 +17,8 @@ public class ResourceModule : ModuleBase
     public int defBonus;
     [Tooltip("资源消耗后增加的金钱 (如果是 Gold 类型，默认取 EntityCore 的 gold)")]
     public int goldBonus;
+    [Tooltip("资源消耗后恢复的生命值")]
+    public int hpBonus;
 
     public override void OnModuleLoad(EntityCore entity)
     {
@@ -24,8 +26,10 @@ public class ResourceModule : ModuleBase
         if (atkBonus == 0) atkBonus = entity.attack;
         if (defBonus == 0) defBonus = entity.defense;
         if (goldBonus == 0) goldBonus = entity.gold;
+        // 药物类型可以默认读取 entity 的 currentHealth 或者单独设置
+        if (hpBonus == 0 && resourceType == ResourceType.Drug) hpBonus = entity.currentHealth;
         
-        Debug.Log($"[{gameObject.name}] 资源模块已加载：ATK+{atkBonus}, DEF+{defBonus}, GOLD+{goldBonus}");
+        Debug.Log($"[{gameObject.name}] 资源模块已加载：ATK+{atkBonus}, DEF+{defBonus}, GOLD+{goldBonus}, HP+{hpBonus}");
     }
 
     public override void OnModuleTick()
@@ -49,8 +53,14 @@ public class ResourceModule : ModuleBase
         playerCore.attack += atkBonus;
         playerCore.defense += defBonus;
         playerCore.gold += goldBonus;
+        
+        // 处理生命值恢复
+        if (hpBonus > 0)
+        {
+            playerCore.currentHealth = Mathf.Min(playerCore.maxHealth, playerCore.currentHealth + hpBonus);
+        }
 
-        Debug.Log($"[{playerCore.gameObject.name}] 消耗了 [{gameObject.name}]，当前属性：ATK {playerCore.attack}, DEF {playerCore.defense}, GOLD {playerCore.gold}");
+        Debug.Log($"[{playerCore.gameObject.name}] 消耗了 [{gameObject.name}]，当前属性：ATK {playerCore.attack}, DEF {playerCore.defense}, GOLD {playerCore.gold}, HP {playerCore.currentHealth}");
 
         // 资源卡消失
         Destroy(gameObject);
