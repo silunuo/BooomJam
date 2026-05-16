@@ -40,6 +40,7 @@ public class CombatModule : ModuleBase
     private Color originalEmissionColor;
     private float originalEmissionStrength;
     private bool isCombatInProgress = false;
+    private CardHandDrawnHitEffectTrigger handDrawnHitEffectTrigger;
 
     // 技能相关状态变量
     private int combatRoundCount = 0;
@@ -64,6 +65,8 @@ public class CombatModule : ModuleBase
                 cardMaterial.SetFloat(emissionStrengthProperty, 0f);
             }
         }
+
+        TryGetComponent(out handDrawnHitEffectTrigger);
         
         Debug.Log($"[{gameObject.name}] 战斗模块已装载并重置发光。");
     }
@@ -385,6 +388,8 @@ public class CombatModule : ModuleBase
     /// </summary>
     public IEnumerator FlashHitEffect()
     {
+        PlayHandDrawnHitEffect();
+
         if (cardMaterial == null) yield break;
 
         // 设置为指定的受击颜色
@@ -405,5 +410,18 @@ public class CombatModule : ModuleBase
         // 确保恢复最终值
         cardMaterial.SetColor(emissionColorProperty, originalEmissionColor);
         cardMaterial.SetFloat(emissionStrengthProperty, originalEmissionStrength);
+    }
+
+    private void PlayHandDrawnHitEffect()
+    {
+        if (handDrawnHitEffectTrigger == null)
+        {
+            TryGetComponent(out handDrawnHitEffectTrigger);
+        }
+
+        if (handDrawnHitEffectTrigger != null)
+        {
+            handDrawnHitEffectTrigger.PlayHitEffect();
+        }
     }
 }
